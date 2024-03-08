@@ -7,10 +7,9 @@ public class ProductApi
 {
     public static async Task<List<Product>> GetAll()
     {
-        var connectionConfig = new ConnectionConfig();
         var products = new List<Product>();
         
-        using (var connection = new NpgsqlConnection(connectionConfig.Url))
+        using (var connection = new NpgsqlConnection(ConnectionConfig.Url))
         {
             await connection.OpenAsync();
 
@@ -43,9 +42,7 @@ public class ProductApi
 
     public static async Task<Product> GetById(int id)
     {
-        var connectionConfig = new ConnectionConfig();
-
-        await using (var connection = new NpgsqlConnection(connectionConfig.Url))
+        await using (var connection = new NpgsqlConnection(ConnectionConfig.Url))
         {
             await connection.OpenAsync();
 
@@ -78,9 +75,7 @@ public class ProductApi
 
     public static async Task<IResult> CreateProduct(Product product)
     {
-        var connectionConfig = new ConnectionConfig();
-        
-        await using (var connection = new NpgsqlConnection(connectionConfig.Url))
+        await using (var connection = new NpgsqlConnection(ConnectionConfig.Url))
         {
             await connection.OpenAsync();
 
@@ -101,9 +96,7 @@ public class ProductApi
 
     public static async Task<IResult> UpdateProduct(int id, Product product)
     {
-        var connectionConfig = new ConnectionConfig();
-        
-        await using (var connection = new NpgsqlConnection(connectionConfig.Url))
+        await using (var connection = new NpgsqlConnection(ConnectionConfig.Url))
         {
             await connection.OpenAsync();
 
@@ -131,9 +124,7 @@ public class ProductApi
 
     public static async Task<IResult> DeleteProduct(int id)
     {
-        var connectionConfig = new ConnectionConfig();
-        
-        await using (var connection = new NpgsqlConnection(connectionConfig.Url))
+        await using (var connection = new NpgsqlConnection(ConnectionConfig.Url))
         {
             await connection.OpenAsync();
 
