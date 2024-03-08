@@ -1,32 +1,16 @@
-using Newtonsoft.Json;
-using WebApplication1;
-using Npgsql;
+﻿using Npgsql;
+using WebApplicationApi.ProductCURL.Data;
 
-var builder = WebApplication.CreateBuilder(args);
+namespace WebApplicationApi.ProductCURL;
 
-var connectionString = "Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=24326234";
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+public class ProductApi
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseHttpsRedirection();
-
-
-
-app.MapGet("api/products", async (HttpContext context) =>
+    public static async Task<List<Product>> GetAll()
     {
+        var connectionConfig = new ConnectionConfig();
         var products = new List<Product>();
-        using (var connection = new NpgsqlConnection(connectionString))
+        
+        using (var connection = new NpgsqlConnection(connectionConfig.Url))
         {
             await connection.OpenAsync();
 
@@ -45,22 +29,23 @@ app.MapGet("api/products", async (HttpContext context) =>
                             Description = reader.GetString(reader.GetOrdinal("description")),
                             Price = reader.GetDouble(reader.GetOrdinal("price")),
                             CreateDate = reader.GetDateTime(reader.GetOrdinal("create_date")),
-                            LastModifiedDate = reader.GetDateTime(reader.GetOrdinal("last_modified_date"))
                         };
                         products.Add(product);
                     }
                 }
             }
+
+            await connection.CloseAsync();
         }
 
-        await context.Response.WriteAsJsonAsync(products);
-    })
-    .WithName("GetProducts")
-    .WithOpenApi();
+        return products;
+    }
 
-app.MapGet("api/product/{id}", async (int id, HttpContext context) =>
+    public static async Task<Product> GetById(int id)
     {
-        await using (var connection = new NpgsqlConnection(connectionString))
+        var connectionConfig = new ConnectionConfig();
+
+        await using (var connection = new NpgsqlConnection(connectionConfig.Url))
         {
             await connection.OpenAsync();
 
@@ -80,22 +65,22 @@ app.MapGet("api/product/{id}", async (int id, HttpContext context) =>
                             Description = reader.GetString(reader.GetOrdinal("description")),
                             Price = reader.GetDouble(reader.GetOrdinal("price")),
                             CreateDate = reader.GetDateTime(reader.GetOrdinal("create_date")),
-                            LastModifiedDate = reader.GetDateTime(reader.GetOrdinal("last_Modified_date"))
                         };
                         
-                        await context.Response.WriteAsJsonAsync(product);
+                        return product;
                     }
                 }
             }
         }
 
-    })
-    .WithName("GetProduct")
-    .WithOpenApi();
+        return null;
+    }
 
-app.MapPost("api/products", async (Product product) =>
+    public static async Task<IResult> CreateProduct(Product product)
     {
-        await using (var connection = new NpgsqlConnection(connectionString))
+        var connectionConfig = new ConnectionConfig();
+        
+        await using (var connection = new NpgsqlConnection(connectionConfig.Url))
         {
             await connection.OpenAsync();
 
@@ -112,13 +97,13 @@ app.MapPost("api/products", async (Product product) =>
                 return Results.Ok(response);
             }
         }
-    })
-    .WithName("AddProduct")
-    .WithOpenApi();
+    }
 
-app.MapPut("api/products/{id}", async (int id, Product product) =>
+    public static async Task<IResult> UpdateProduct(int id, Product product)
     {
-        await using (var connection = new NpgsqlConnection(connectionString))
+        var connectionConfig = new ConnectionConfig();
+        
+        await using (var connection = new NpgsqlConnection(connectionConfig.Url))
         {
             await connection.OpenAsync();
 
@@ -141,14 +126,14 @@ app.MapPut("api/products/{id}", async (int id, Product product) =>
             }
         }
 
-        return Results.NoContent();
-    })
-    .WithName("UpdateProduct")
-    .WithOpenApi();
+        return Results.Ok();
+    }
 
-app.MapDelete("api/product/{id}", async (int id) =>
+    public static async Task<IResult> DeleteProduct(int id)
     {
-        await using (var connection = new NpgsqlConnection(connectionString))
+        var connectionConfig = new ConnectionConfig();
+        
+        await using (var connection = new NpgsqlConnection(connectionConfig.Url))
         {
             await connection.OpenAsync();
 
@@ -167,8 +152,5 @@ app.MapDelete("api/product/{id}", async (int id) =>
         }
 
         return Results.Ok();
-    })
-    .WithName("DeleteProduct")
-    .WithOpenApi();
-
-app.Run();
+    }
+}
