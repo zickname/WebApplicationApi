@@ -27,4 +27,7 @@ public static class ProductEndpoints
             .WithName("DeleteProduct")
             .WithOpenApi();
     }
+    
+    
 }
+

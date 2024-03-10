@@ -35,9 +35,9 @@ public static class ProductApi
         return products;
     }
 
-    public static async Task<Product> GetById(int id)
+    public static async Task<Product> GetById(int id, IConfiguration configuration)
     {
-        var connectionString = "Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=24326234";
+        var connectionString = configuration["ConnectionStrings"].ToString();
         using var connection = new NpgsqlConnection(connectionString);
 
         await connection.OpenAsync();
