@@ -4,9 +4,8 @@ GET {{WebApplication1_HostAddress}}/api/products/
 Accept: application/json
 
 ###
-GET {{WebApplication1_HostAddress}}/api/product/5/
+GET {{WebApplication1_HostAddress}}/api/product/{{id}}/
 Accept: application/json
-
 ###
 POST {{WebApplication1_HostAddress}}/api/products/
 Content-Type: application/json

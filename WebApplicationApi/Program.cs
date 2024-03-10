@@ -2,7 +2,6 @@ using Newtonsoft.Json;
 using WebApplicationApi;
 using Npgsql;
 using WebApplicationApi.ProductCURL;
-using WebApplicationApi.ProductCURL.Data;
 using WebApplicationApi.ProductCURL.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,10 +20,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-Console.WriteLine(app.Configuration.GetConnectionString("DefaultConnection"));
-
 app.UseHttpsRedirection();
 
-app.MapProductEndpoints();
+app.MapProductEndpoints(app.Configuration);
 
 app.Run();
