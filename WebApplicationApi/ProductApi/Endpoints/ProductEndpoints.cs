@@ -11,10 +11,10 @@ public static class ProductEndpoints
             .WithName("GetProducts")
             .WithOpenApi();
 
-        // endpoints.MapGet("api/product/{id}", ProductApi.GetById)
-        //     .WithName("GetProduct")
-        //     .WithOpenApi();
-        //
+        endpoints.MapGet("api/product/{id}", () => GetById(configuration))
+            .WithName("GetProduct")
+            .WithOpenApi();
+        
         // endpoints.MapPost("api/products", ProductApi.CreateProduct)
         //     .WithName("AddProduct")
         //     .WithOpenApi();

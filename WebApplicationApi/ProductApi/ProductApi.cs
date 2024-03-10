@@ -34,37 +34,37 @@ public static class ProductApi
         return products;
     }
         
-    // public static async Task<Product> GetById(int id, IConfiguration configuration)
-    // {
-    //     var connectionString = configuration["ConnectionStrings"].ToString();
-    //     using var connection = new NpgsqlConnection(connectionString);
-    //
-    //     await connection.OpenAsync();
-    //
-    //     var commandText = "SELECT * FROM products WHERE id = @id AND is_deleted = false";
-    //
-    //     using var command = new NpgsqlCommand(commandText, connection);
-    //
-    //     command.Parameters.AddWithValue("@id", id);
-    //
-    //     using var reader = await command.ExecuteReaderAsync();
-    //
-    //     while (await reader.ReadAsync())
-    //     {
-    //         var product = new Product
-    //         {
-    //             Id = reader.GetInt32(reader.GetOrdinal("id")),
-    //             Name = reader.GetString(reader.GetOrdinal("name")),
-    //             Description = reader.GetString(reader.GetOrdinal("description")),
-    //             Price = reader.GetDouble(reader.GetOrdinal("price")),
-    //             CreateDate = reader.GetDateTime(reader.GetOrdinal("create_date"))
-    //         };
-    //
-    //         return product;
-    //     }
-    //
-    //     return null;
-    // }
+    public static async Task<Product> GetById(int id, IConfiguration configuration)
+    {
+        var connectionString = configuration["ConnectionStrings"].ToString();
+        using var connection = new NpgsqlConnection(connectionString);
+    
+        await connection.OpenAsync();
+    
+        var commandText = "SELECT * FROM products WHERE id = @id AND is_deleted = false";
+    
+        using var command = new NpgsqlCommand(commandText, connection);
+    
+        command.Parameters.AddWithValue("@id", id);
+    
+        using var reader = await command.ExecuteReaderAsync();
+    
+        while (await reader.ReadAsync())
+        {
+            var product = new Product
+            {
+                Id = reader.GetInt32(reader.GetOrdinal("id")),
+                Name = reader.GetString(reader.GetOrdinal("name")),
+                Description = reader.GetString(reader.GetOrdinal("description")),
+                Price = reader.GetDouble(reader.GetOrdinal("price")),
+                CreateDate = reader.GetDateTime(reader.GetOrdinal("create_date"))
+            };
+    
+            return product;
+        }
+    
+        return null;
+    }
     //
     // public static async Task<IResult> CreateProduct(Product product, IConfiguration configuration)
     // {
