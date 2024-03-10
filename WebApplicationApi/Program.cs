@@ -2,6 +2,8 @@ using Newtonsoft.Json;
 using WebApplicationApi;
 using Npgsql;
 using WebApplicationApi.ProductCURL;
+using WebApplicationApi.ProductCURL.Data;
+using WebApplicationApi.ProductCURL.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,26 +21,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+Console.WriteLine(app.Configuration.GetConnectionString("DefaultConnection"));
+
 app.UseHttpsRedirection();
 
-app.MapGet("api/products", ProductApi.GetAll)
-    .WithName("GetProducts")
-    .WithOpenApi();
-
-app.MapGet("api/product/{id}", ProductApi.GetById)
-    .WithName("GetProduct")
-    .WithOpenApi();
-
-app.MapPost("api/products", ProductApi.CreateProduct)
-    .WithName("AddProduct")
-    .WithOpenApi();
-
-app.MapPut("api/products/{id}", ProductApi.UpdateProduct)
-    .WithName("UpdateProduct")
-    .WithOpenApi();
-
-app.MapDelete("api/product/{id}", ProductApi.DeleteProduct)
-    .WithName("DeleteProduct")
-    .WithOpenApi();
+app.MapProductEndpoints();
 
 app.Run();
