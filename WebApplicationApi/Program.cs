@@ -1,8 +1,7 @@
-using Newtonsoft.Json;
 using WebApplicationApi;
-using Npgsql;
-using WebApplicationApi.ProductCURL;
-using WebApplicationApi.ProductCURL.Endpoints;
+using WebApplicationApi.ProductApi.Endpoints;
+using WebApplicationApi.ProductApi.Interface;
+using WebApplicationApi.ProductApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddTransient<ITimeService, DateTimeService>();
 
 var app = builder.Build();
 
@@ -22,6 +22,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapProductEndpoints(app.Configuration);
+app.MapProductEndpoints();
+app.MapDateTime();
 
 app.Run();
