@@ -1,10 +1,10 @@
-﻿using WebApplicationApi.ProductApi.Interface;
+﻿using WebApplicationApi.Interface;
 
-namespace WebApplicationApi.ProductApi.Endpoints;
+namespace WebApplicationApi.Endpoints;
 
 public static class DateTimeEndpoints
 {
-    public static void MapDateTime(this IEndpointRouteBuilder endpoints)
+    public static void MapDateTimeEndpoints(this IEndpointRouteBuilder endpoints)
     {
         endpoints.MapGet("/datetime", GetDateTime)
             .WithName("GetDateTime")
@@ -14,6 +14,6 @@ public static class DateTimeEndpoints
     private static async Task<IResult> GetDateTime(ITimeService timeService)
     {
         var dateTime = timeService.GetDateTime();
-        return await Task.FromResult(Results.Ok(dateTime));
+        return await Task.FromResult(Results.Ok(dateTime.ToLongDateString()));
     }
 }
