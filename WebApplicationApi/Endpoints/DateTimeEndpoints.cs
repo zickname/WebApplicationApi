@@ -11,9 +11,9 @@ public static class DateTimeEndpoints
             .WithOpenApi();
     }
 
-    private static async Task<IResult> GetDateTime(ITimeService timeService)
+    private static IResult GetDateTime(ITimeService timeService)
     {
         var dateTime = timeService.GetDateTime();
-        return await Task.FromResult(Results.Ok(dateTime.ToLongDateString()));
+        return Results.Ok(dateTime.ToLongDateString());
     }
 }
