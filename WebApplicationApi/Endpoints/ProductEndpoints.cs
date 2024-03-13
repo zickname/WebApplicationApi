@@ -1,6 +1,9 @@
 ﻿using System.Data;
 using Npgsql;
 using Dapper;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
+using WebApplicationApi.Data;
 
 namespace WebApplicationApi.Endpoints;
 
@@ -12,7 +15,7 @@ public static class ProductEndpoints
             .WithName("GetProducts")
             .WithOpenApi();
 
-        endpoints.MapGet("api/product/{id}", GetById)
+        endpoints.MapGet("api/product/{id:int}", GetById)
             .WithName("GetProduct")
             .WithOpenApi();
 
@@ -20,57 +23,50 @@ public static class ProductEndpoints
             .WithName("AddProduct")
             .WithOpenApi();
 
-        endpoints.MapPut("api/products/{id}", UpdateProduct)
+        endpoints.MapPut("api/products/{id:int}", UpdateProduct)
             .WithName("UpdateProduct")
             .WithOpenApi();
 
-        endpoints.MapDelete("api/product/{id}", DeleteProduct)
+        endpoints.MapDelete("api/product/{id:int}", DeleteProduct)
             .WithName("DeleteProduct")
             .WithOpenApi();
     }
 
-    private static async Task<List<Product>> GetAll(IConfiguration configuration)
+    private static async Task<List<ProductDTO>> GetAll(AppDbContext db)
     {
-        var connectionString = configuration["ConnectionStrings"];
-        
-        using IDbConnection db = new NpgsqlConnection(connectionString);
-
-        var results = await db.QueryAsync<Product>(
-            "SELECT * FROM products WHERE is_deleted = false"
-        );
-
-        return results.ToList();
+        return await db.Products.ToListAsync();
     }
 
-    private static async Task<IEnumerable<Product>> GetById(int id, IConfiguration configuration)
-    {
-        var connectionString = configuration["ConnectionStrings"];
-        
-        using IDbConnection db = new NpgsqlConnection(connectionString);
 
-        return await db.QueryAsync<Product>(
-            "SELECT * FROM products WHERE id = @id AND is_deleted = false",
-            new { id });
+    private static async Task<ProductDTO?> GetById(int id, AppDbContext db)
+    {
+        return await db.Products.FirstOrDefaultAsync( p => p.Id == id );
     }
 
-    private static async Task<IResult> CreateProduct(Product product, IConfiguration configuration)
+    private static async Task<IResult> CreateProduct(ProductDTO productDto, AppDbContext db)
     {
-        var connectionString = configuration["ConnectionStrings"];
-        
-        using IDbConnection db = new NpgsqlConnection(connectionString);
-
-        var sqlQuery =
-            "INSERT INTO products (name, description, price) VALUES (@name, @description, @price) RETURNING id";
-
-        var userId = await db.ExecuteScalarAsync(sqlQuery, product);
-
-        return Results.Ok(userId);
+        await db.Products.AddAsync(productDto);
+        await db.SaveChangesAsync();
+        return Results.Ok(productDto.Id);
     }
+    // private static async Task<IResult> CreateProduct(ProductDTO productDto, IConfiguration configuration)
+    // {
+    //     var connectionString = configuration["ConnectionStrings"];
+    //     
+    //     using IDbConnection db = new NpgsqlConnection(connectionString);
+    //
+    //     var sqlQuery =
+    //         "INSERT INTO products (name, description, price) VALUES (@name, @description, @price) RETURNING id";
+    //
+    //     var userId = await db.ExecuteScalarAsync(sqlQuery, productDto);
+    //
+    //     return Results.Ok(userId);
+    // }
 
-    private static async Task<IResult> UpdateProduct(int id, Product product, IConfiguration configuration)
+    private static async Task<IResult> UpdateProduct(int id, ProductDTO productDto, IConfiguration configuration)
     {
         var connectionString = configuration["ConnectionStrings"];
-        product.LastModifiedDate = DateTime.Now;
+        productDto.LastModifiedDate = DateTime.Now;
         
         using IDbConnection db = new NpgsqlConnection(connectionString);
 
@@ -81,7 +77,7 @@ public static class ProductEndpoints
                                 last_modified_date = @last_modified_date 
                             WHERE id = @id";
 
-        await db.QueryAsync<Product>(sqlQuery, new { id, product });
+        await db.QueryAsync<ProductDTO>(sqlQuery, new { id, product = productDto });
 
         return Results.Ok();
     }

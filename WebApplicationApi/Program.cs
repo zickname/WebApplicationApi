@@ -1,13 +1,17 @@
+using Microsoft.EntityFrameworkCore;
+using WebApplicationApi.Data;
 using WebApplicationApi.Endpoints;
 using WebApplicationApi.Interface;
 using WebApplicationApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-
+string connections = builder.Configuration.GetConnectionString("DefaultConnection")!;
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connections));
 
 builder.Services.AddTransient<ITimeService, DateTimeService>();
 
