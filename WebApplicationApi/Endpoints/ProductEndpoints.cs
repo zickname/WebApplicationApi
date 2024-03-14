@@ -1,9 +1,7 @@
-﻿using System.Data;
-using Npgsql;
-using Dapper;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using WebApplicationApi.Data;
+using WebApplicationApi.DTO;
+using WebApplicationApi.Models;
 
 namespace WebApplicationApi.Endpoints;
 
@@ -32,70 +30,85 @@ public static class ProductEndpoints
             .WithOpenApi();
     }
 
-    private static async Task<List<ProductDTO>> GetAll(AppDbContext db)
+    private static async Task<List<ProductDto>> GetAll(AppDbContext db)
     {
-        return await db.Products.ToListAsync();
+        return await db.Products.Select(product => new ProductDto
+        {
+            Name = product.Name,
+            Description = product.Description,
+            Price = product.Price
+        }).ToListAsync();
     }
 
 
-    private static async Task<ProductDTO?> GetById(int id, AppDbContext db)
+    private static async Task<ProductDto?> GetById(int id, AppDbContext db)
     {
-        return await db.Products.FirstOrDefaultAsync( p => p.Id == id );
+        return await db.Products
+            .Where(product => product.Id == id)
+            .Select(product => new ProductDto
+            {
+                Name = product.Name,
+                Description = product.Description,
+                Price = product.Price
+            })
+            .FirstOrDefaultAsync();
     }
 
-    private static async Task<IResult> CreateProduct(ProductDTO productDto, AppDbContext db)
+    private static async Task<IResult> CreateProduct(ProductDto productDto, AppDbContext db)
     {
-        await db.Products.AddAsync(productDto);
+        var product = new Product
+        {
+            Name = productDto.Name,
+            Description = productDto.Description,
+            Price = productDto.Price,
+            CreateDate = default,
+            IsDeleted = false,
+            LastModifiedDate = null
+        };
+
+        await db.Products.AddAsync(product);
+
         await db.SaveChangesAsync();
-        return Results.Ok(productDto.Id);
+
+        return Results.Ok(product.Id);
     }
-    // private static async Task<IResult> CreateProduct(ProductDTO productDto, IConfiguration configuration)
-    // {
-    //     var connectionString = configuration["ConnectionStrings"];
-    //     
-    //     using IDbConnection db = new NpgsqlConnection(connectionString);
-    //
-    //     var sqlQuery =
-    //         "INSERT INTO products (name, description, price) VALUES (@name, @description, @price) RETURNING id";
-    //
-    //     var userId = await db.ExecuteScalarAsync(sqlQuery, productDto);
-    //
-    //     return Results.Ok(userId);
-    // }
 
-    private static async Task<IResult> UpdateProduct(int id, ProductDTO productDto, IConfiguration configuration)
+    private static async Task<IResult> UpdateProduct(int id, ProductDto productDto, AppDbContext db)
     {
-        var connectionString = configuration["ConnectionStrings"];
-        productDto.LastModifiedDate = DateTime.Now;
-        
-        using IDbConnection db = new NpgsqlConnection(connectionString);
+        var existingProduct = await db.Products.FindAsync(id);
 
-        var sqlQuery = @"UPDATE products 
-                            SET name = @name, 
-                                description = @description, 
-                                price = @price, 
-                                last_modified_date = @last_modified_date 
-                            WHERE id = @id";
+        if (existingProduct == null)
+        {
+            return Results.NotFound($"Запись с таким {id} не найдена");
+        }
 
-        await db.QueryAsync<ProductDTO>(sqlQuery, new { id, product = productDto });
+        existingProduct.Name = productDto.Name;
+        existingProduct.Description = productDto.Description;
+        existingProduct.Price = productDto.Price;
+        existingProduct.LastModifiedDate = DateTime.UtcNow;
+
+        db.Products.Update(existingProduct);
+
+        await db.SaveChangesAsync();
 
         return Results.Ok();
     }
 
-    private static async Task<IResult> DeleteProduct(int id, IConfiguration configuration)
+    private static async Task<IResult> DeleteProduct(int id, ProductDto productDto, AppDbContext db)
     {
-        var connectionString = configuration["ConnectionStrings"];
-        var deletedDate = DateTime.Now;
-        var isDeleted = true;
-        
-        using IDbConnection db = new NpgsqlConnection(connectionString);
+        var existingProduct = await db.Products.FindAsync(id);
 
-        var sqlQuery = @"UPDATE products 
-                            SET deleted_date = @deleted_date, 
-                                is_deleted = @isDeleted 
-                            WHERE id = @id AND  is_deleted = false";
+        if (existingProduct == null)
+        {
+            return Results.NotFound($"Запись с таким {id} не найдена");
+        }
 
-        await db.ExecuteAsync(sqlQuery, new { id, deletedDate, isDeleted });
+        existingProduct.IsDeleted = true;
+        existingProduct.DeletedDate = DateTime.UtcNow;
+
+        db.Products.Update(existingProduct);
+
+        await db.SaveChangesAsync();
 
         return Results.Ok();
     }
