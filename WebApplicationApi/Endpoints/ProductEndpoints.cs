@@ -24,7 +24,7 @@ public static class ProductEndpoints
         endpoints.MapPut("api/products/{id:int}", UpdateProduct)
             .WithName("UpdateProduct")
             .WithOpenApi();
-
+        
         endpoints.MapDelete("api/product/{id:int}", DeleteProduct)
             .WithName("DeleteProduct")
             .WithOpenApi();
@@ -61,8 +61,6 @@ public static class ProductEndpoints
             Name = productDto.Name,
             Description = productDto.Description,
             Price = productDto.Price,
-            IsDeleted = false,
-            LastModifiedDate = null
         };
 
         await db.Products.AddAsync(product);
@@ -75,40 +73,40 @@ public static class ProductEndpoints
     private static async Task<IResult> UpdateProduct(int id, ProductDto productDto, AppDbContext db)
     {
         var existingProduct = await db.Products.FindAsync(id);
-
+    
         if (existingProduct == null)
         {
             return Results.NotFound($"Запись с таким {id} не найдена");
         }
-
+    
         existingProduct.Name = productDto.Name;
         existingProduct.Description = productDto.Description;
         existingProduct.Price = productDto.Price;
         existingProduct.LastModifiedDate = DateTime.UtcNow;
-
+    
         db.Products.Update(existingProduct);
-
+    
         await db.SaveChangesAsync();
-
-        return Results.Ok();
+    
+        return Results.Ok(id);
     }
-
-    private static async Task<IResult> DeleteProduct(int id, ProductDto productDto, AppDbContext db)
+    
+    private static async Task<IResult> DeleteProduct(int id, AppDbContext db)
     {
         var existingProduct = await db.Products.FindAsync(id);
-
+    
         if (existingProduct == null)
         {
             return Results.NotFound($"Запись с таким {id} не найдена");
         }
-
+    
         existingProduct.IsDeleted = true;
         existingProduct.DeletedDate = DateTime.UtcNow;
-
+    
         db.Products.Update(existingProduct);
-
+    
         await db.SaveChangesAsync();
-
+    
         return Results.Ok();
     }
 }
