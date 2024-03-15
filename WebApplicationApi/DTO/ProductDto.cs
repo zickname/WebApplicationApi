@@ -2,7 +2,7 @@
 
 public class ProductDto
 {
-    public string Name { get; set; } = null!;
-    public string? Description { get; set; }
-    public double Price { get; set; }
+    public string Name { get; init; } = null!;
+    public string? Description { get; init; }
+    public double Price { get; init; }
 }

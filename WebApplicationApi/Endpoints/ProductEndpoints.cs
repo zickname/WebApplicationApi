@@ -61,7 +61,6 @@ public static class ProductEndpoints
             Name = productDto.Name,
             Description = productDto.Description,
             Price = productDto.Price,
-            CreateDate = default,
             IsDeleted = false,
             LastModifiedDate = null
         };
