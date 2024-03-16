@@ -6,10 +6,11 @@ using WebApplicationApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var connections = builder.Configuration.GetConnectionString("DefaultConnection")!;
+var uploadImageFolderPath = builder.Configuration.GetSection("UploadImageFolderPath").ToString()!;
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connections));
 
@@ -25,8 +26,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 
 app.MapProductEndpoints();
 app.MapDateTimeEndpoints();
+app.MapUploadFileEndpoints();
 
 app.Run();
