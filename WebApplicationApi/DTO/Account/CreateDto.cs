@@ -1,6 +1,6 @@
 ﻿namespace WebApplicationApi.DTO;
 
-public class AccountCreateDto
+public class CreateDto
 {
     public int Id { get; set; }
     public string FirstName { get; set; }

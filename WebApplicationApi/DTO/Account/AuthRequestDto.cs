@@ -1,6 +1,6 @@
 ﻿namespace WebApplicationApi.DTO;
 
-public class AuthAccount
+public class AuthRequestDto
 {
     public string Login { get; set; }
     public string Password { get; set; }
