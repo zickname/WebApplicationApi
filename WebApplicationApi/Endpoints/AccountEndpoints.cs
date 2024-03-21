@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WebApplicationApi.Data;
-using WebApplicationApi.DTO;
 using WebApplicationApi.DTO.Account;
 using WebApplicationApi.Models;
 using static BCrypt.Net.BCrypt;
@@ -20,23 +19,30 @@ public static class AccountEndpoints
 
     private static async Task<IResult> Create(CreateDto createDto, AppDbContext db)
     {
+        var account = await db.Accounts.FirstOrDefaultAsync(account => account.Login == createDto.Login);
+
+        if (account != null)
+        {
+            return Results.BadRequest("Пользователь с таким логином уже зарегистрирован");
+        }
+        
         var hashedPassword = HashPassword(createDto.Password);
 
-        var account = new Account()
+        var newAccount = new Account()
         {
             FirstName = createDto.FirstName,
             MiddleName = createDto.MiddleName,
             LastName = createDto.LastName,
             PhoneNumber = createDto.PhoneNumber,
             Password = hashedPassword,
-            Login = createDto.Login
+            Login = createDto.Login.ToLower()
         };
         
-        await db.Accounts.AddAsync(account);
+        await db.Accounts.AddAsync(newAccount);
 
         await db.SaveChangesAsync();
 
-        return Results.Ok(account.Id);
+        return Results.Ok(newAccount.Id);
     }
 
     private static async Task<IResult> Authenticate(AuthRequestDto authRequestDto, AppDbContext db)

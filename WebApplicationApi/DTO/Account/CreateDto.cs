@@ -1,12 +1,11 @@
-﻿namespace WebApplicationApi.DTO;
+﻿namespace WebApplicationApi.DTO.Account;
 
-public class CreateDto
+public abstract class CreateDto
 {
-    public int Id { get; set; }
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public string MiddleName { get; set; }
-    public string PhoneNumber { get; set; }
-    public string Login { get; set; }
-    public string Password { get; set; }
+    public required string FirstName { get; init; }
+    public required string LastName { get; init; }
+    public required string MiddleName { get; init; }
+    public required string PhoneNumber { get; init; }
+    public required string Login { get; init; }
+    public required string Password { get; init; }
 }

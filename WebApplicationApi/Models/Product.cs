@@ -11,7 +11,7 @@ public class Product
 
     [Column("name")]
     [MaxLength(200)]
-    public string Name { get; set; } = null!;
+    public required string Name { get; set; }
 
     [Column("create_date")]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -30,5 +30,6 @@ public class Product
     public DateTime? LastModifiedDate { get; set; }
 
     [Column("description")]
-    public string? Description { get; set; }
+    [MaxLength(int.MaxValue)]
+    public required string Description { get; set; }
 }
