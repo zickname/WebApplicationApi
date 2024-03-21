@@ -1,4 +1,4 @@
-﻿namespace WebApplicationApi.DTO;
+﻿namespace WebApplicationApi.DTO.Product;
 
 public class ProductDto
 {

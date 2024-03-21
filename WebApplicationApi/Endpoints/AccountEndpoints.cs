@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WebApplicationApi.Data;
 using WebApplicationApi.DTO;
+using WebApplicationApi.DTO.Account;
 using WebApplicationApi.Models;
 using static BCrypt.Net.BCrypt;
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WebApplicationApi.Data;
 using WebApplicationApi.DTO;
+using WebApplicationApi.DTO.Product;
 using WebApplicationApi.Models;
 
 namespace WebApplicationApi.Endpoints;
@@ -37,7 +38,8 @@ public static class ProductEndpoints
             Name = product.Name,
             Description = product.Description,
             Price = product.Price
-        }).ToListAsync();
+        })
+            .ToListAsync();
     }
 
 
